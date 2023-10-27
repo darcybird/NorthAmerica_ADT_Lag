@@ -43,4 +43,4 @@ MW_bot %>%
   )+
   scale_x_reverse()
 
-MW_bot %>% readr::write_csv(here::here("data/data-derived/archaeobot/mw_archaeobot.csv"))
+MW_bot %>% readr::write_csv(here::here("data/data-derived/mw_archaeobot.csv"))

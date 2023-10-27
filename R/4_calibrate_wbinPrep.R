@@ -5,7 +5,7 @@ library(purrr)
 
 # create SPD -----
 c14 <- 
-  readr::read_csv(here::here("data/data-derived/c14/study_c14.csv")) %>% 
+  readr::read_csv(here::here("data/data-derived/study_c14.csv")) %>% 
     dplyr::mutate(calib = "intcal20",
                   site = stringr::str_c(
                     ifelse(!is.na(SiteID), SiteID, 0), 
@@ -14,10 +14,10 @@ c14 <-
                     ifelse(!is.na(Province), Province, 0), 
                     ifelse(!is.na(x), round(x,1), 0), 
                     ifelse(!is.na(y), round(y,1), 0))) %>% 
-    dplyr::select(Age, Error, calib, site, studyarea, subregion) %>% 
-  dplyr::filter(studyarea != "EU", Age > 2*Error) 
+    dplyr::select(Age, Error, calib, site, subregion) %>% 
+  dplyr::filter( Age > 2*Error) 
   
-c14 %>% dplyr::group_by(subregion) %>% dplyr::select(site) %>% dplyr::distinct()
+# c14 %>% dplyr::group_by(subregion) %>% dplyr::select(site) %>% dplyr::distinct()
 
 # #calculate growth rates ----
 plateau <- c14 %>%   dplyr::filter(subregion == "Plateau") %>% dplyr::filter(Age < 6000)
@@ -89,7 +89,7 @@ ggplot(gg, aes(x = breaks))+
   geom_line(aes(y=MW), color = "orange")+
   scale_x_reverse()
 
-gg %>% write_csv(here::here("data/data-derived/c14/spd_growth_rates.csv"))
+# gg %>% write_csv(here::here("data/data-derived/spd_growth_rates_10.csv"))
 
 gg.100 <- bind_cols(desert.gg.100$breaks[2:51], desert.gg.100$roca, plateau.gg.100$roca, MW.gg.100$roca  ) 
 
@@ -101,7 +101,23 @@ ggplot(gg.100, aes(x = breaks))+
   geom_line(aes(y=MW), color = "orange")+
   scale_x_reverse()
 
-gg.100 %>% write_csv(here::here("data/data-derived/c14/spd_growth_rates_100.csv"))
+
+c14_growth_rates <- left_join(
+  gg %>% 
+    tidyr::pivot_longer(cols = c(desert:MW), names_to = "subregion", values_to = "SPD_GR") %>% 
+    dplyr::mutate(SPD_GR= 100 * SPD_GR), 
+  gg.100 %>% 
+    tidyr::pivot_longer(cols = c(desert:MW), names_to = "subregion", values_to = "SPD_GR_100") %>% 
+    dplyr::mutate(SPD_GR_100 = 100 * SPD_GR_100),
+  by = c("breaks" = "breaks", "subregion" = "subregion")
+  ) %>% 
+  tidyr::pivot_longer(cols = c(SPD_GR, SPD_GR_100), names_to = "scale", values_drop_na = TRUE) %>% 
+  dplyr::mutate(scale = factor(scale, 
+                               levels = c("SPD_GR", "SPD_GR_100"), 
+                               labels = c("Decadal", "Centennial")))
+
+
+c14_growth_rates %>% write_csv(here::here("data/data-derived/c14_growth_rates.csv"))
 
 #combine for SPD results
 desert_spd_grid$subregion <- "desert"
@@ -122,4 +138,4 @@ SPDs <- bind_rows(desert_spd_grid,desert_spd_200_grid,
                   plateau_spd_grid,plateau_spd_200_grid,  
                   MW_spd_grid, MW_spd_200_grid)
 
-SPDs%>% write_csv(here::here("data/data-derived/c14/spds.csv"))
+SPDs%>% write_csv(here::here("data/data-derived/spds.csv"))

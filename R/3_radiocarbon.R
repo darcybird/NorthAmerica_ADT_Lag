@@ -4,6 +4,8 @@ library(terra)
 library(rnaturalearth)
 library(magrittr)
 
+library(tidyterra)
+
 # US SOUTHWEST ----
 SW_subregions <- readr::read_csv(here::here("data/data-raw/SW_subregions.csv"))
 
@@ -41,14 +43,12 @@ SW_c14  <- p3k14c::p3k14c_data %>%
   terra::intersect(SW_subs%>% 
                      terra::aggregate(by = "subregion")) %>% 
   terra::as.data.frame(geom = c("XY")) %>% 
-  dplyr::select(-state, -county) #%>% 
-  # dplyr::mutate(isMaize = stringr::str_detect(Taxa, "mays"),
-  #               isMaize = tidyr::replace_na(isMaize))
+  dplyr::select(-state, -county) 
 
-SW_c14 %>% readr::write_csv(here::here("data/data-derived/c14/SW_c14.csv"))
-
+# SW_c14 %>% readr::write_csv(here::here("data/data-derived/SW_c14.csv"))
 
 # Midwest -----
+## generate midwest shapefile according to Milner's regions
 Milner_cemeteries <- readr::read_csv(here::here("data/data-raw/fert_rates/Milner_TableS2_ageProfiles.csv")) %>% 
   dplyr::mutate(County = ifelse(stringr::str_detect(County, "40BY"), "Bradley", County),
                 County = ifelse(stringr::str_detect(County, "40MN"), "McMinn", County)) %>% 
@@ -78,8 +78,7 @@ MW_Milner <-  MW_Milner_counties %>% terra::vect() %>%
 
 MW_Milner_subregion <- MW_Milner_counties %>% dplyr::filter(ADM2_CODE  %in% MW_Milner$ADM2_CODE ) %>% terra::vect() 
 
-library(tidyterra)
-
+# plot to see where milner's data is from 
 MW_Milner_subregion %>% 
   dplyr::mutate(
     nCem = ifelse(is.na(nCem), 0, nCem),
@@ -88,7 +87,6 @@ MW_Milner_subregion %>%
   ggplot(aes(fill = nSample), alpha = 0.5)+
   geom_spatvector()+
   scale_fill_gradient(low = "white", high = "red")+
-  # geom_spatvector(data = MW_Milner_subregion, aes(fill = nCem), alpha = 0.5)+
   theme_minimal()+
   theme(legend.position = "top") + 
   guides(fill=guide_legend(title="MW"))
@@ -106,9 +104,15 @@ MW_c14  <- p3k14c::p3k14c_data %>%
                                    Province %in% c("Illinois", "Indiana", "Kentucky", "Tennessee"))) %>% 
   dplyr::mutate(subregion = "MW")
 
-MW_c14 %>% readr::write_csv(here::here("data/data-derived/c14/MW_c14.csv"))
+# MW_c14 %>% readr::write_csv(here::here("data/data-derived/MW_c14.csv"))
 
-# US Map -----
+c14 <- bind_rows(SW_c14, MW_c14)
+
+
+c14 %>%   readr::write_csv(here::here("data/data-derived/study_c14.csv"))
+
+
+# Make Figure 1 -----
 
 MW_Milner_subregion$subregion <- "Midwest"
 
@@ -117,10 +121,11 @@ MW <- MW_Milner_subregion['subregion']
 
 studyareas <- rbind(SW, MW )
 
-studyareas %>% terra::plot()
+studyareas %>% terra::plot(y = "subregion")
 
-studyareas$subregion <- factor(studyareas$subregion, levels = c("Desert", "Plateau", "Midwest"),
-                               labels = c("Desert", "Upland", "Midwest"))
+studyareas$subregion <- factor(studyareas$subregion, 
+                               levels = c("Desert", "Plateau", "Midwest"),
+                               labels = c("Desert", "Uplands", "Midwest"))
 
 studyareas_extent <- terra::ext(studyareas %>% terra::buffer(width = 80000))
 
@@ -131,8 +136,6 @@ NorthAm <- rnaturalearth::ne_states(country = c("Mexico", "United States of Amer
   terra::crop(studyareas_extent)
 
 studyareas %>% saveRDS("data/data-derived/subregions.rds")
-
-library(tidyterra)
 
 Fig1map <- ggplot()+
   geom_spatvector(data = studyareas, aes(fill = subregion))+

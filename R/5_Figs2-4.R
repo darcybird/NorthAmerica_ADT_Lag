@@ -6,32 +6,18 @@ library(stats)
 options(scipen=999)
 #load in data ----
 #load in SPDs
-SPDs <- read_csv(here::here("data/data-derived/c14/spds.csv")) %>% 
+SPDs <- read_csv(here::here("data/data-derived/spds.csv")) %>% 
   dplyr::mutate(runm =ifelse(runm == "200", "Dens200", "Dens1"),
                 runm = factor(runm, levels = c("Dens1", "Dens200"), 
                               labels = c("Annual", "200-year mean"))) %>% 
   dplyr::rename(SPD = runm)
 
 # load in growth rates
-gg.100 <- read_csv(here::here("data/data-derived/c14/spd_growth_rates_100.csv"))%>% 
-  tidyr::pivot_longer(cols = c(desert:MW), names_to = "subregion", values_to = "SPD_GR_100") %>% 
-  dplyr::mutate(SPD_GR_100 = 100 * SPD_GR_100)
-
-gg <-
-  read_csv(here::here("data/data-derived/c14/spd_growth_rates.csv")) %>% 
-  tidyr::pivot_longer(cols = c(desert:MW), names_to = "subregion", values_to = "SPD_GR") %>% 
-  dplyr::mutate(SPD_GR= 100 * SPD_GR)
-
-c14_growth_rates <- left_join(gg, gg.100, by = c("breaks" = "breaks", "subregion" = "subregion")) %>% 
-  tidyr::pivot_longer(cols = c(SPD_GR, SPD_GR_100), names_to = "scale", values_drop_na = TRUE) %>% 
-  dplyr::mutate(scale = factor(scale, 
-                               levels = c("SPD_GR", "SPD_GR_100"), 
-                               labels = c("Decadal", "Centennial")))
-
+c14_growth_rates <- read_csv(here::here("data/data-derived/c14_growth_rates.csv"))
 
 
 #load in MW plants
-MW_bot <- readr::read_csv(here::here("data/data-derived/archaeobot/mw_archaeobot.csv"))
+MW_bot <- readr::read_csv(here::here("data/data-derived/mw_archaeobot.csv"))
 
 #load in cemeteries
 cemeteries <-  readr::read_csv(here::here("data/data-derived/cemetery_data.csv"))
@@ -311,7 +297,7 @@ Plateau_c <- cemeteries %>%
 
 Plateau_b / Plateau_b2 / Plateau_c
 
-png(filename = "figures/Fig4_Plateau.png", width = 6, height = 6, units = "in", res = 300)
+png(filename = "figures/Fig4_Uplands.png", width = 6, height = 6, units = "in", res = 300)
 (Plateau_b / Plateau_b2 / Plateau_c) + plot_annotation(tag_levels = 'A')
 dev.off()
 
@@ -429,12 +415,6 @@ png(filename = "figures/Fig3_desert.png", width = 6, height = 6, units = "in", r
 (Desert_b / Desert_b2 / Desert_c) + plot_annotation(tag_levels = 'A')
 dev.off()
 
-# massive figure ----
-
-# png(filename = "all.png", width = 10, height = 6, units = "in", res = 300)
-# ( plot_spacer() / Desert_b / Desert_b2 / Desert_c) | (Plateau_a / Plateau_b / Plateau_b2 / Plateau_c) | (MW_a / MW_b / MW_b2 / MW_c) + 
-#   plot_annotation(tag_levels = 'A')
-# dev.off()
 
 # export regimes ----
 
@@ -506,11 +486,6 @@ subcem <- cem_long %>%
   dplyr::mutate(GR = stringr::str_c(mean, " + ", SD)) %>% 
   dplyr::select(subregion, regime, GR) %>% 
   tidyr::pivot_wider(names_from = subregion, values_from = GR) 
-#weighted byMNI
-#  cem_long %>% 
-#   dplyr::group_by(regime) %>% 
-#   dplyr::summarise(sub = round(mean(JI ), digits = 2),
-#                    SD = round(sd(JI ), 2))  
 
 #not weihted by MNI
 allcem <- cem_long %>% 
@@ -524,10 +499,8 @@ allcem <- cem_long %>%
   dplyr::select(subregion, regime, GR) %>% 
   tidyr::pivot_wider(names_from = subregion, values_from = GR) %>% 
   dplyr::left_join(subcem, by = c("regime" = "regime"))
-# allcem
 
-# allcem %>% write_csv("data/data-derived/cem_summary.csv")
-
+#combine and export
 
 Table2 <- all_growth %>% dplyr::filter(scale == "Centennial") %>% 
   bind_rows(allcem) %>% 

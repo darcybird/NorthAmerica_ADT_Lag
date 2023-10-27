@@ -1,0 +1,63 @@
+﻿State,County,subregion
+Chihuahua,,Plateau
+Sonora,,Desert
+AZ,Mohave,Plateau
+AZ,La Paz,Desert
+AZ,Yuma,Desert
+AZ,Maricopa,Desert
+AZ,Pima,Desert
+AZ,Pinal,Desert
+AZ,Santa Cruz,Desert
+AZ,Cochise,Desert
+AZ,Gila,Mogollon
+AZ,Yavapai,Plateau
+AZ,Coconino,Plateau
+AZ,Graham,Mogollon
+AZ,Greenlee,Mogollon
+AZ,Navajo,Plateau
+AZ,Apache,Plateau
+NV,Clark,Plateau
+UT,Washington,Plateau
+UT,Iron,Plateau
+UT,Kane,Plateau
+UT,Garfield,Plateau
+UT,San Juan,Plateau
+UT,Wayne,Plateau
+UT,Emery,Plateau
+UT,Grand,Plateau
+UT,Carbon,Plateau
+UT,Uintah,Plateau
+UT,Daggett,Plateau
+UT,Duchesne,Plateau
+UT,Wasatch,Plateau
+UT,Summit,Plateau
+UT,Morgan,Plateau
+UT,Weber,Plateau
+UT,Salt Lake,Plateau
+CO,Montezuma,Plateau
+CO,Dolores,Plateau
+CO,La Plata,Plateau
+CO,San Miguel,Plateau
+CO,Montrose,Plateau
+CO,Ouray,Plateau
+CO,Hinsdale,Plateau
+CO,San Juan,Plateau
+CO,Archuleta,Plateau
+CO,Mineral,Plateau
+NM,San Juan,Plateau
+NM,Rio Arriba,Plateau
+NM,Taos,Plateau
+NM,Colfax,Plateau
+NM,Mora,Plateau
+NM,Santa Fe,Plateau
+NM,Los Alamos,Plateau
+NM,Sandoval,Plateau
+NM,McKinley,Plateau
+NM,Cibola,Plateau
+NM,Bernalillo,Plateau
+NM,Valencia,Plateau
+NM,Torrance,Plateau
+NM,Socorro,Plateau
+NM,Sierra,Plateau
+NM,Catron,Plateau
+NM,Grant,Mogollon
